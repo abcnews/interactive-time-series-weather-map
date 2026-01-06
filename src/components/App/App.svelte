@@ -23,20 +23,60 @@
   let geojson = $state<MyFeatureCollection>({} as MyFeatureCollection);
   let data = $state<Data>({} as Data);
   let status = $state<'loading' | 'ready'>('loading');
+  const spikeLayer = new SpikeLayer({ id: 'hi', baseDiameter: 20000 });
+
   onMount(async () => {
     const [loadedGeojson, loadedData] = await Promise.all([
       fetch('/au.geo.json').then(res => res.json() as Promise<MyFeatureCollection>),
-      fetch('/data.json').then(res => res.json() as Promise<Data>)
+      fetch('/tempc.json').then(res => res.json() as Promise<Data>)
     ]);
     geojson = loadedGeojson;
     data = loadedData;
     status = 'ready';
-    setInterval(() => {
+
+    // 1. Initial Setup: Extract fixed locations
+    const featuresWithData = loadedGeojson.features.filter(f => data.series[f.properties.auroraId]);
+    const coords = featuresWithData.map(f => f.geometry.coordinates);
+
+    // Initialize the 3D objects at their locations
+    spikeLayer.setLocations(coords);
+
+    // 2. Data Update Function: Convert your logic to Typed Arrays
+    function refreshSpikes(index) {
+      console.log('refershing', index);
+      const count = featuresWithData.length;
+      const heights = new Float32Array(count);
+      const colours = new Float32Array(count * 3); // 3 values (R, G, B) per spike
+
+      featuresWithData.forEach((feature, i) => {
+        const series = data.series[feature.properties.auroraId];
+        const temp = series?.[index] || 0;
+        const fraction = temp ? Math.min(1, Math.max(0, (temp - 10) / 35)) : 0;
+
+        // Set Height
+        heights[i] = Math.round(3000000 * fraction);
+
+        // Set Color (Normalize 0-255 to 0.0-1.0 for Three.js)
+        colours[i * 3] = fraction; // Red
+        colours[i * 3 + 1] = 0; // Green
+        colours[i * 3 + 2] = 1 - fraction; // Blue
+      });
+
+      // Push to GPU
+      spikeLayer.updateData(heights, colours);
+    }
+    refreshSpikes(0);
+
+    const go = () => {
       index++;
       if (index > data.timestamps.length) {
         index = 0;
       }
-    }, 5000);
+      refreshSpikes(index);
+      requestAnimationFrame(go);
+    };
+
+    go();
   });
 
   let index = 0;
@@ -64,26 +104,7 @@
       map.setProjection({
         type: 'globe' // Set projection to globe
       });
-
-      const coneGeoJson = {
-        ...geojson,
-        features: (geojson.features = geojson.features
-          .map(feature => {
-            const series = data.series[feature.properties.auroraId];
-            const temp = series?.[3] || 0;
-            const fraction = temp ? Math.min(1, Math.max(0, (temp - 10) / 35)) : 0;
-            feature.properties = {
-              ...feature.properties,
-              height: 3000000 * fraction,
-              colour: `rgb(${Math.round(fraction * 255)}, 0, ${Math.round((1 - fraction) * 255)})`,
-              temp
-            };
-            return feature;
-          })
-          .filter(feature => feature.properties.temp))
-      };
-      map.addLayer(new SpikeLayer({ id: 'hi', geojson: coneGeoJson, baseDiameter: 20000 }));
-      console.log('added cone layer');
+      map.addLayer(spikeLayer);
     }}
   />
 </div>

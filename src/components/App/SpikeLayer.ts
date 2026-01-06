@@ -3,27 +3,32 @@ import type { Map as MaplibreMap, CustomLayerInterface, CustomRenderMethodInput 
 
 interface SpikeLayerOptions {
   id: string;
-  geojson: GeoJSON.FeatureCollection;
   baseDiameter?: number;
+  coords?: [number, number][]; // Optional initial data
 }
 
 export default class SpikeLayer implements CustomLayerInterface {
   id: string;
   type: 'custom' = 'custom';
   renderingMode: '3d' = '3d';
-  geojson: GeoJSON.FeatureCollection;
-  baseDiameter: number;
 
-  private map?: MaplibreMap;
-  private camera?: THREE.Camera;
-  private scene?: THREE.Scene;
-  private renderer?: THREE.WebGLRenderer;
-  private mesh?: THREE.InstancedMesh;
+  protected map?: MaplibreMap;
+  protected camera?: THREE.Camera;
+  protected scene?: THREE.Scene;
+  protected renderer?: THREE.WebGLRenderer;
+  protected mesh?: THREE.InstancedMesh;
 
-  constructor({ id, geojson, baseDiameter = 100000 }: SpikeLayerOptions) {
+  protected baseMatrices: THREE.Matrix4[] = [];
+  protected baseDiameter: number;
+  protected count: number = 0;
+
+  // Internal store for coordinates if set before onAdd
+  private pendingCoords: [number, number][] | null = null;
+
+  constructor({ id, baseDiameter = 100000, coords }: SpikeLayerOptions) {
     this.id = id;
-    this.geojson = geojson;
     this.baseDiameter = baseDiameter;
+    if (coords) this.pendingCoords = coords;
   }
 
   onAdd(map: MaplibreMap, gl: WebGLRenderingContext | WebGL2RenderingContext): void {
@@ -37,41 +42,105 @@ export default class SpikeLayer implements CustomLayerInterface {
     });
     this.renderer.autoClear = false;
 
-    const features = this.geojson.features.filter(f => f.properties && f.properties.temp);
+    // If we have data waiting, initialize the mesh now
+    if (this.pendingCoords) {
+      this.initMesh(this.pendingCoords);
+      this.pendingCoords = null;
+    }
+  }
+
+  /**
+   * Public API to set locations.
+   * Handles both "pre-init" and "post-init" scenarios.
+   */
+  setLocations(coords: [number, number][]): void {
+    if (!this.map) {
+      // Not added to map yet, store for onAdd
+      this.pendingCoords = coords;
+      return;
+    }
+    this.initMesh(coords);
+  }
+
+  /**
+   * Internal method to build the THREE objects once context is available
+   */
+  private initMesh(coords: [number, number][]): void {
+    if (!this.map || !this.scene) return;
+
+    // Clean up old mesh if exists
+    if (this.mesh) {
+      this.scene.remove(this.mesh);
+      this.mesh.geometry.dispose();
+      (this.mesh.material as THREE.Material).dispose();
+    }
+
+    this.count = coords.length;
+    this.baseMatrices = coords.map(lngLat => {
+      const modelMatrixArray = this.map!.transform.getMatrixForModel(lngLat, 0);
+      return new THREE.Matrix4().fromArray(modelMatrixArray);
+    });
 
     const geometry = new THREE.ConeGeometry(0.5, 1, 12);
     geometry.translate(0, 0.5, 0);
-    const material = new THREE.MeshBasicMaterial({});
-    const mesh = new THREE.InstancedMesh(geometry, material, features.length);
+    const material = new THREE.MeshBasicMaterial();
 
-    features.forEach((feature, i) => {
-      if (feature.geometry.type !== 'Point') return;
+    this.mesh = new THREE.InstancedMesh(geometry, material, this.count);
 
-      const lngLat = feature.geometry.coordinates as [number, number];
-      const modelMatrixArray = this.map!.transform.getMatrixForModel(lngLat, 0);
-      const modelMatrix = new THREE.Matrix4().fromArray(modelMatrixArray);
+    // Default to scale 0 so they don't pop in until updateData is called
+    const zeroScale = new THREE.Matrix4().makeScale(0, 0, 0);
+    for (let i = 0; i < this.count; i++) {
+      this.mesh.setMatrixAt(i, zeroScale);
+    }
 
-      const h = (feature.properties?.height as number) || 0;
-      const w = this.baseDiameter;
-
-      modelMatrix.scale(new THREE.Vector3(w, h, w));
-      mesh.setMatrixAt(i, modelMatrix);
-      mesh.setColorAt(i, new THREE.Color((feature.properties?.colour as string) || 'red'));
-    });
-
-    mesh.instanceMatrix.needsUpdate = true;
-    if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
-
-    this.scene.add(mesh);
-    this.mesh = mesh;
+    this.scene.add(this.mesh);
   }
+
+  updateData(heights: Float32Array, colors: Float32Array): void {
+    if (!this.mesh || heights.length !== this.count) {
+      return;
+    }
+
+    const tempMatrix = new THREE.Matrix4();
+    const tempColor = new THREE.Color();
+    const w = this.baseDiameter;
+
+    for (let i = 0; i < this.count; i++) {
+      tempMatrix.copy(this.baseMatrices[i]);
+      const height = heights[i];
+      if (!height) {
+        continue;
+      }
+
+      tempMatrix.scale(new THREE.Vector3(w, heights[i], w));
+      this.mesh.setMatrixAt(i, tempMatrix);
+
+      tempColor.setRGB(colors[i * 3], colors[i * 3 + 1], colors[i * 3 + 2]);
+      this.mesh.setColorAt(i, tempColor);
+    }
+
+    this.mesh.instanceMatrix.needsUpdate = true;
+    if (this.mesh.instanceColor) this.mesh.instanceColor.needsUpdate = true;
+
+    this.map?.triggerRepaint();
+  }
+
+  protected onPreRender(): void {}
 
   render(gl: WebGLRenderingContext | WebGL2RenderingContext, args: CustomRenderMethodInput): void {
     if (!this.camera || !this.renderer || !this.scene || !this.map || !this.mesh) return;
 
+    this.onPreRender();
     this.camera.projectionMatrix = new THREE.Matrix4().fromArray(args.defaultProjectionData.mainMatrix);
     this.renderer.resetState();
     this.renderer.render(this.scene, this.camera);
-    this.map.triggerRepaint();
+  }
+
+  onRemove(): void {
+    if (this.mesh) {
+      this.mesh.geometry.dispose();
+      (this.mesh.material as THREE.Material).dispose();
+    }
+    this.renderer?.dispose();
   }
 }

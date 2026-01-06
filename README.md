@@ -1,3 +1,3 @@
 # interactive-time-series-weather-map
 
-A project generated from [aunty](https://github.com/abcnews/aunty)'s `svelte` project template.
+Show weather data on a spike map. This is experimental, and mainly to test various techniques for other articles.
