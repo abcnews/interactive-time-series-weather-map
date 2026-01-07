@@ -1,34 +1,20 @@
 <script lang="ts">
   import Maplibre from '../Maplibre/Maplibre.svelte';
-  import type { FeatureCollection, Geometry } from 'geojson';
   import { onMount } from 'svelte';
   import SpikeLayer from './SpikeLayer';
-  type MyFeatureCollection = FeatureCollection<
-    Geometry,
-    {
-      // Your types go here
-      name: string;
-      auroraId: string;
-      height?: number;
-      colour?: string;
-      temp?: number | null;
-    }
-  >;
+  import type { LocationsFeatureCollection, TimeSeriesData } from '../../types';
 
-  type Data = {
-    timestamps: string[];
-    series: Record<string, (number | null)[]>;
-  };
-
-  let geojson = $state<MyFeatureCollection>({} as MyFeatureCollection);
-  let data = $state<Data>({} as Data);
+  let geojson = $state<LocationsFeatureCollection>({} as LocationsFeatureCollection);
+  let data = $state<TimeSeriesData>({} as TimeSeriesData);
   let status = $state<'loading' | 'ready'>('loading');
   const spikeLayer = new SpikeLayer({ id: 'hi', baseDiameter: 20000 });
 
   onMount(async () => {
     const [loadedGeojson, loadedData] = await Promise.all([
-      fetch('/au.geo.json').then(res => res.json() as Promise<MyFeatureCollection>),
-      fetch('/tempc.json').then(res => res.json() as Promise<Data>)
+      fetch('/au.geo.json').then(res => res.json() as Promise<LocationsFeatureCollection>),
+      fetch('https://abcnewsdata.sgp1.digitaloceanspaces.com/data-time-series-weather/tempc.json').then(
+        res => res.json() as Promise<TimeSeriesData>
+      )
     ]);
     geojson = loadedGeojson;
     data = loadedData;
@@ -54,7 +40,7 @@
         const fraction = temp ? Math.min(1, Math.max(0, (temp - 10) / 35)) : 0;
 
         // Set Height
-        heights[i] = Math.round(3000000 * fraction);
+        heights[i] = Math.round(1000000 * fraction);
 
         // Set Color (Normalize 0-255 to 0.0-1.0 for Three.js)
         colours[i * 3] = fraction; // Red
@@ -105,6 +91,14 @@
         type: 'globe' // Set projection to globe
       });
       map.addLayer(spikeLayer);
+
+      map.addControl(
+        new maplibregl.NavigationControl({
+          visualizePitch: true,
+          showZoom: true,
+          showCompass: true
+        })
+      );
     }}
   />
 </div>
@@ -120,5 +114,6 @@
     width: 100%;
     height: 100dvh;
     position: relative;
+    background: linear-gradient(to bottom, black, purple);
   }
 </style>

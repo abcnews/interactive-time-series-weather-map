@@ -1,21 +1,27 @@
 import acto from '@abcnews/alternating-case-to-object';
 import { whenDOMReady } from '@abcnews/env-utils';
 import { getMountValue, selectMounts } from '@abcnews/mount-utils';
-import type { Mount } from '@abcnews/mount-utils';
-import App from './components/App/App.svelte';
+import MapViz from './components/MapViz/MapViz.svelte';
 import { mount } from 'svelte';
-
-let appMountEl: Mount;
-let appProps;
+import SparklineViz from './components/SparklineViz/SparklineViz.svelte';
 
 whenDOMReady.then(() => {
-  [appMountEl] = selectMounts('interactivetimeseriesweathermap');
+  const [mapMountEl] = selectMounts('interactivetimeseriesweathermap');
 
-  if (appMountEl) {
-    appProps = acto(getMountValue(appMountEl));
-    
-    mount(App, {
-      target: appMountEl,
+  if (mapMountEl) {
+    const appProps = acto(getMountValue(mapMountEl));
+    mount(MapViz, {
+      target: mapMountEl,
+      props: appProps
+    });
+  }
+
+  const [sparklineMountEl] = selectMounts('interactivetimeseriesweathersparkline');
+
+  if (sparklineMountEl) {
+    const appProps = acto(getMountValue(sparklineMountEl));
+    mount(SparklineViz, {
+      target: sparklineMountEl,
       props: appProps
     });
   }
