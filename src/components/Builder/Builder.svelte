@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { BuilderStyleRoot, BuilderFrame } from '@abcnews/components-builder';
+  import { BuilderStyleRoot, BuilderFrame, UpdateChecker } from '@abcnews/components-builder';
   import { onMount } from 'svelte';
   const defaultParams = new URLSearchParams(location.hash.slice(1));
 
@@ -35,8 +35,6 @@
   let iframeUrl = $derived.by(
     () => `https://${location.host}${location.pathname.replace(/\/builder\/?/, '/')}?${hash}&abcnewsembedheight=600`
   );
-
-  $effect(() => console.log({ iframeUrl }));
 </script>
 
 {#snippet Viz()}
@@ -52,6 +50,7 @@
     <legend>Iframe url</legend>
     <input readonly value={iframeUrl} />
   </fieldset>
+  <UpdateChecker />
 {/snippet}
 
 <BuilderStyleRoot>
