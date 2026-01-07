@@ -7,7 +7,7 @@ import SparklineViz from './components/SparklineViz/SparklineViz.svelte';
 import { setTransparent } from './components/util';
 setTransparent();
 
-whenDOMReady.then(() => {
+whenDOMReady.then(async () => {
   // const [mapMountEl] = selectMounts('interactivetimeseriesweathermap');
 
   // if (mapMountEl) {
@@ -27,6 +27,17 @@ whenDOMReady.then(() => {
     mount(SparklineViz, {
       target: sparklineMountEl,
       props: { locations }
+    });
+  }
+
+  const [builderMountEl] = selectMounts('interactivetimeseriesweatherbuilder');
+
+  if (builderMountEl) {
+    const appProps = acto(getMountValue(builderMountEl));
+    const builderModule = await import('./components/Builder/Builder.svelte');
+    mount(builderModule.default, {
+      target: builderMountEl,
+      props: appProps
     });
   }
 });
