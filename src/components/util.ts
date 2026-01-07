@@ -1,4 +1,5 @@
 export const DATA_URL = 'https://abcnewsdata.sgp1.digitaloceanspaces.com/data-time-series-weather/tempc.json';
+export const LOCATIONS_URL = 'https://abcnewsdata.sgp1.digitaloceanspaces.com/data-time-series-weather/au.geo.json';
 
 /**
  * Sets the parent iframe's color scheme to "light" so that we can set a

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import type { LocationsFeatureCollection, TimeSeriesData } from '../../types';
-  import { DATA_URL, emitResize } from '../util';
+  import { DATA_URL, emitResize, LOCATIONS_URL } from '../util';
   import WeatherChart from './charts/WeatherChart.svelte';
   import { setGradientScale } from './charts/lib/stores';
   let geojson = $state<LocationsFeatureCollection>();
@@ -16,7 +16,7 @@
 
   onMount(async () => {
     const [loadedGeojson, loadedData] = await Promise.all([
-      fetch('/au.geo.json').then(res => res.json() as Promise<LocationsFeatureCollection>),
+      fetch(LOCATIONS_URL).then(res => res.json() as Promise<LocationsFeatureCollection>),
       fetch(DATA_URL).then(res => res.json() as Promise<TimeSeriesData>)
     ]);
     geojson = loadedGeojson;
