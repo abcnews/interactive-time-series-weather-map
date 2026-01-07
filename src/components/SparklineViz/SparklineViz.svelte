@@ -103,15 +103,20 @@
 </script>
 
 <div class="app" bind:clientHeight>
-  {#each foundLocations as location}
-    <WeatherChart
-      name={location.name}
-      altText={`A chart shows temperatures at ${location.name}`}
-      data={location.chartData}
-      formatValue={v => `${v.toFixed(1)}°C`}
-      yDomain={[globalMin, globalMax]}
-    />
-  {/each}
+  {#if foundLocations.length}
+    {#each foundLocations as location}
+      <WeatherChart
+        name={location.name}
+        altText={`A chart shows temperatures at ${location.name}`}
+        data={location.chartData}
+        formatValue={v => `${v.toFixed(1)}°C`}
+        yDomain={[globalMin, globalMax]}
+      />
+    {/each}
+    <div>
+      <p class="attribution">Times shown in user's local time. Source: Metraweather.</p>
+    </div>
+  {/if}
 </div>
 
 <style lang="scss">
@@ -129,5 +134,14 @@
     display: flex;
     flex-direction: column;
     gap: 50px;
+  }
+
+  .attribution {
+    font-family: ABCSans;
+    color: #333;
+    background: #fff;
+    border-radius: 1000px;
+    padding: 2px 0.75rem;
+    display: inline-block;
   }
 </style>

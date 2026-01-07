@@ -1,22 +1,22 @@
 import acto from '@abcnews/alternating-case-to-object';
 import { whenDOMReady } from '@abcnews/env-utils';
 import { getMountValue, selectMounts } from '@abcnews/mount-utils';
-import MapViz from './components/MapViz/MapViz.svelte';
+// import MapViz from './components/MapViz/MapViz.svelte';
 import { mount } from 'svelte';
 import SparklineViz from './components/SparklineViz/SparklineViz.svelte';
 import { setTransparent } from './components/util';
 setTransparent();
 
 whenDOMReady.then(() => {
-  const [mapMountEl] = selectMounts('interactivetimeseriesweathermap');
+  // const [mapMountEl] = selectMounts('interactivetimeseriesweathermap');
 
-  if (mapMountEl) {
-    const appProps = acto(getMountValue(mapMountEl));
-    mount(MapViz, {
-      target: mapMountEl,
-      props: appProps
-    });
-  }
+  // if (mapMountEl) {
+  //   const appProps = acto(getMountValue(mapMountEl));
+  //   mount(MapViz, {
+  //     target: mapMountEl,
+  //     props: appProps
+  //   });
+  // }
 
   const [sparklineMountEl] = selectMounts('interactivetimeseriesweathersparkline');
 
