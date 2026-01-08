@@ -101,7 +101,7 @@
       {/each}
     </div>
     <div>
-      <p class="attribution">Times shown in user's local time. Source: Metraweather.</p>
+      <p class="attribution">Times shown in user's local time. Source: MetraWeather.</p>
     </div>
   {/if}
 </div>
