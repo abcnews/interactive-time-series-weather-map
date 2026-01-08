@@ -20,19 +20,18 @@
   <body>
     <div data-mount id="interactivetimeseriesweathersparkline"></div>
     <script lang="text/javascript">
-      try{
-        if(localStorage['abc:news:preferences:scheme'] === '"dark"'){
-          document.body.style.backgroundColor = '#0F0F0F'
-        }
-        if(localStorage['abc:news:preferences:scheme'] === '"light"'){
-          document.body.style.backgroundColor = '#fff'
-        } else {
-          if(window.matchMedia('(prefers-color-scheme: dark)').matches){
-            document.documentElement.style.colorScheme = 'dark'
-          }
-        }
-      }catch(e){
-
+      function tryLocalStorage(key){
+        try{
+          return localStorage[key]
+        }catch(e){}
+      }
+      if(tryLocalStorage('abc:news:preferences:scheme') === '"dark"'){
+        document.body.style.backgroundColor = '#0F0F0F'
+      }
+      if(tryLocalStorage('abc:news:preferences:scheme') === '"light"'){
+        document.body.style.backgroundColor = '#fff'
+      } else if(window.matchMedia('(prefers-color-scheme: dark)').matches){
+        document.documentElement.style.colorScheme = 'dark'
       }
     </script>
   </body>
