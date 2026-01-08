@@ -20,9 +20,9 @@
   });
 
   $effect(() => {
-    console.log({ status });
+    // Because we're in iframes we need to leverage delayed loading, otherwise
+    // all the requests run in parallel and we don't get any browser cache.
     if (status === 'inview') {
-      console.log("in view, let's go");
       untrack(async () => {
         const [loadedGeojson, loadedData] = await Promise.all([
           fetch(LOCATIONS_URL).then(res => res.json() as Promise<LocationsFeatureCollection>),

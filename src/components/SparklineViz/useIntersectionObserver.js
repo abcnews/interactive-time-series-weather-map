@@ -23,7 +23,6 @@ export function intersectionObserver(node, options = {}) {
   const observer = new IntersectionObserver(
     entries => {
       entries.forEach(entry => {
-        console.log('entry for', entry);
         if (entry.isIntersecting) {
           onEnter?.();
         } else {
