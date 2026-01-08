@@ -58,19 +58,3 @@ export type ObservationType = InferOutput<typeof ObservationSchema>;
 
 export const MetricSchema = union([literal('gust'), literal('rain'), literal('swell'), literal('bomtemp')]);
 export type MetricType = InferOutput<typeof MetricSchema>;
-
-export const filterObservationsWithMissingData = (location: LocationType, metric: MetricType) => {
-  return location.observations.flatMap(observation => {
-    if (
-      observation[metricProperties[metric].property] === null ||
-      observation[metricProperties[metric].property] === undefined
-    ) {
-      console.log(
-        `Dropping observation for ${location.name} at ${observation.aifstime_utc} because it has no ${metricProperties[metric].property}`
-      );
-      return [];
-    } else {
-      return [observation];
-    }
-  });
-};
