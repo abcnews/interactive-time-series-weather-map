@@ -8,16 +8,17 @@ export const LOCATIONS_URL = 'https://abcnewsdata.sgp1.digitaloceanspaces.com/da
  * transparent iframe background.
  */
 export function setTransparent() {
-  try {
-    const frame = Array.from(window.parent.document.querySelectorAll('iframe'))?.find(
-      iframe => (iframe.src = String(window.location))
-    );
-    if (frame) {
-      frame.style.colorScheme = 'light';
-    }
-  } catch (e: any) {
-    console.warn('Interactive: Could not set dark mode on iframe. This only works in prod/same domain.', e.message);
-  }
+  // don't do this. Is this causing crashes? Maybe. Let's find out.
+  // try {
+  //   const frame = Array.from(window.parent.document.querySelectorAll('iframe'))?.find(
+  //     iframe => (iframe.src = String(window.location))
+  //   );
+  //   if (frame) {
+  //     frame.style.colorScheme = 'light';
+  //   }
+  // } catch (e: any) {
+  //   console.warn('Interactive: Could not set dark mode on iframe. This only works in prod/same domain.', e.message);
+  // }
 }
 
 let prevHeight = 0;
