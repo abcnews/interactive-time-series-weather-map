@@ -15,12 +15,25 @@
       #webpack-dev-server-client-overlay {
         display: none !important;
       }
-      :root {
-        color-scheme: dark;
-      }
     </style>
   </head>
   <body>
     <div data-mount id="interactivetimeseriesweathersparkline"></div>
+    <script lang="text/javascript">
+      try{
+        if(localStorage['abc:news:preferences:scheme'] === '"dark"'){
+          document.body.style.backgroundColor = '#0F0F0F'
+        }
+        if(localStorage['abc:news:preferences:scheme'] === '"light"'){
+          document.body.style.backgroundColor = '#fff'
+        } else {
+          if(window.matchMedia('(prefers-color-scheme: dark)').matches){
+            document.documentElement.style.colorScheme = 'dark'
+          }
+        }
+      }catch(e){
+
+      }
+    </script>
   </body>
 </html>
