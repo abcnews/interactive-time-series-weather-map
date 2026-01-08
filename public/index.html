@@ -15,6 +15,16 @@
       #webpack-dev-server-client-overlay {
         display: none !important;
       }
+      /* Default light/dark mode per the operating system */
+      html {
+        color-scheme: light;
+        @media (prefers-color-scheme: dark) {
+          color-scheme: dark;
+        }
+      }
+      html[data-scheme='dark'] {
+        color-scheme: dark;
+      }
     </style>
   </head>
   <body>
@@ -25,13 +35,12 @@
           return localStorage[key]
         }catch(e){}
       }
+      // light/dark mode per the ABC preference. This only changes after page reload.
       if(tryLocalStorage('abc:news:preferences:scheme') === '"dark"'){
-        document.body.style.backgroundColor = '#0F0F0F'
+        document.documentElement.dataset['scheme'] = 'dark';
       }
       if(tryLocalStorage('abc:news:preferences:scheme') === '"light"'){
-        document.body.style.backgroundColor = '#fff'
-      } else if(window.matchMedia('(prefers-color-scheme: dark)').matches){
-        document.documentElement.style.colorScheme = 'dark'
+        document.documentElement.dataset['scheme'] = 'light';
       }
     </script>
   </body>
