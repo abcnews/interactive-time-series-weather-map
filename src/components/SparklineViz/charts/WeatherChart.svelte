@@ -99,55 +99,57 @@
 <div class="weather-chart" {onclick}>
   <h2>{name}</h2>
   <div role="figure" class="chart" aria-label={altText}>
-    <LayerCake {data} {padding} x={d => d.x} y={d => d.y} {yDomain} custom={{ gradientScale, formatValue }}>
-      <Svg>
-        <Area fill={`url('#gradient-shade-${slug}')`} />
-        <Line stroke={`url('#gradient-${slug}')`} />
-        <defs>
-          <linearGradient id="gradient-{slug}" gradientTransform="rotate(90)">
-            <stop offset="0%" stop-color={gradientScale(maxValue)} />
-            <stop offset="50%" stop-color={gradientScale(midValue)} />
-            <stop offset="100%" stop-color={gradientScale(minValue)} />
-          </linearGradient>
-          <linearGradient id="gradient-shade-{slug}" gradientTransform="rotate(90)">
-            <stop offset="0%" stop-color={gradientScale(yDomain[1])} />
-            <stop offset="50%" stop-color={gradientScale(yDomain[1] - yDomain[0])} />
-            <stop offset="100%" stop-color={gradientScale(yDomain[0])} />
-          </linearGradient>
-        </defs>
-        {#if $activeObservation !== null && data.includes($activeObservation as any)}
-          <Circle data={$activeObservation} />
-        {:else if primaryPoint}
-          <Circle data={primaryPoint} />
-          {#if secondaryPoint && !hideSecondaryLabel && secondaryPoint !== primaryPoint}
-            <Circle data={secondaryPoint} />
+    {#if data.length > 0}
+      <LayerCake {data} {padding} x={d => d.x} y={d => d.y} {yDomain} custom={{ gradientScale, formatValue }}>
+        <Svg>
+          <Area fill={`url('#gradient-shade-${slug}')`} />
+          <Line stroke={`url('#gradient-${slug}')`} />
+          <defs>
+            <linearGradient id="gradient-{slug}" gradientTransform="rotate(90)">
+              <stop offset="0%" stop-color={gradientScale(maxValue)} />
+              <stop offset="50%" stop-color={gradientScale(midValue)} />
+              <stop offset="100%" stop-color={gradientScale(minValue)} />
+            </linearGradient>
+            <linearGradient id="gradient-shade-{slug}" gradientTransform="rotate(90)">
+              <stop offset="0%" stop-color={gradientScale(yDomain[1])} />
+              <stop offset="50%" stop-color={gradientScale(yDomain[1] - yDomain[0])} />
+              <stop offset="100%" stop-color={gradientScale(yDomain[0])} />
+            </linearGradient>
+          </defs>
+          {#if $activeObservation !== null && data.includes($activeObservation as any)}
+            <Circle data={$activeObservation} />
+          {:else if primaryPoint}
+            <Circle data={primaryPoint} />
+            {#if secondaryPoint && !hideSecondaryLabel && secondaryPoint !== primaryPoint}
+              <Circle data={secondaryPoint} />
+            {/if}
           {/if}
-        {/if}
-      </Svg>
-      <Html>
-        {#if $activeObservation !== null && data.includes($activeObservation as any)}
-          <div role="tooltip" id="tooltip">
-            <ValueLabel
-              data={$activeObservation}
-              value={formatValue(($activeObservation as any).y)}
-              timeDisplay={formatTime($activeObservation as any)}
-              showTime={true}
-            />
-          </div>
-        {:else if primaryPoint}
-          <ValueLabel data={primaryPoint} value={formatValue(primaryPoint.y)} highlight={true} />
-          {#if secondaryPoint && !hideSecondaryLabel && secondaryPoint !== primaryPoint}
-            <ValueLabel data={secondaryPoint} value={formatValue(secondaryPoint.y)} alignment="below" />
+        </Svg>
+        <Html>
+          {#if $activeObservation !== null && data.includes($activeObservation as any)}
+            <div role="tooltip" id="tooltip">
+              <ValueLabel
+                data={$activeObservation}
+                value={formatValue(($activeObservation as any).y)}
+                timeDisplay={formatTime($activeObservation as any)}
+                showTime={true}
+              />
+            </div>
+          {:else if primaryPoint}
+            <ValueLabel data={primaryPoint} value={formatValue(primaryPoint.y)} highlight={true} />
+            {#if secondaryPoint && !hideSecondaryLabel && secondaryPoint !== primaryPoint}
+              <ValueLabel data={secondaryPoint} value={formatValue(secondaryPoint.y)} alignment="below" />
+            {/if}
           {/if}
-        {/if}
-        <Observations
-          {data}
-          {formatAriaLabel}
-          onenter={d => ($activeObservation = d)}
-          onleave={() => ($activeObservation = null)}
-        />
-      </Html>
-    </LayerCake>
+          <Observations
+            {data}
+            {formatAriaLabel}
+            onenter={d => ($activeObservation = d)}
+            onleave={() => ($activeObservation = null)}
+          />
+        </Html>
+      </LayerCake>
+    {/if}
   </div>
 </div>
 
@@ -175,5 +177,16 @@
   .chart {
     width: 100%;
     height: 100px;
+    :global(svg) {
+      animation: fadeIn 0.25s;
+    }
+  }
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
   }
 </style>

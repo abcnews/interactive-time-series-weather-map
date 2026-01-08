@@ -27,12 +27,12 @@
 
   let foundLocations = $derived.by(() => {
     if (!geojson || !data) {
-      return [];
+      return locations.map(name => ({ name, chartData: [] }));
     }
 
     return locations
       .map(location => geojson.features.find(feature => feature.properties.name === location))
-      .filter(feature => typeof feature !== 'undefined')
+
       .filter(feature => locations.includes(feature.properties.name))
       .map(feature => {
         const auroraId = feature.properties.auroraId;
@@ -90,9 +90,9 @@
 </script>
 
 <div class="app" bind:clientHeight>
-  {#if foundLocations.length}
-    <div class="charts">
-      {#each foundLocations as location}
+  <div class="charts">
+    {#each foundLocations as location, i}
+      <div style:--delay="{i * 0.5}ms">
         <WeatherChart
           name={location.name}
           altText={`A chart shows temperatures at ${location.name}`}
@@ -101,12 +101,12 @@
           yDomain={[globalMin, globalMax]}
           {gradientScale}
         />
-      {/each}
-    </div>
-    <div>
-      <p class="attribution">Times shown in user's local time. Source: MetraWeather.</p>
-    </div>
-  {/if}
+      </div>
+    {/each}
+  </div>
+  <div>
+    <p class="attribution">Times shown in user's local time. Source: MetraWeather.</p>
+  </div>
 </div>
 
 <style lang="scss">
