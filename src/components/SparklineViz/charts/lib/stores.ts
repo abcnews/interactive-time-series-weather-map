@@ -31,7 +31,8 @@ export const extentStores = Object.fromEntries(
   })
 );
 
-const gradientInterpolator = interpolateRgbBasis(['#779E00', '#DB7C00', '#F53500']);
+export const gradientValues = writable(['#779E00', '#DB7C00', '#F53500']);
+const gradientInterpolator = interpolateRgbBasis(get(gradientValues));
 
 export const gradientScale = writable(scaleSequential([Infinity, -Infinity], gradientInterpolator));
 
@@ -40,6 +41,7 @@ export function setGradientScale(
   globalMax = Infinity,
   gradientColours = metricProperties.gust.gradientColours
 ) {
+  gradientValues.set(gradientColours);
   const existingGradientScale = get(gradientScale);
   const newScale = existingGradientScale
     .copy()

@@ -3,7 +3,7 @@
   import type { LocationsFeatureCollection, TimeSeriesData } from '../../types';
   import { DATA_URL, emitResize, LOCATIONS_URL } from '../util';
   import WeatherChart from './charts/WeatherChart.svelte';
-  import { setGradientScale } from './charts/lib/stores';
+  import { gradientScale, setGradientScale } from './charts/lib/stores';
   let { locations = ['Brisbane', 'Sydney', 'Melbourne', 'Adelaide'] } = $props();
   let geojson = $state<LocationsFeatureCollection>();
   let data = $state<TimeSeriesData>();
@@ -49,7 +49,6 @@
           }
           const hasVal = val !== null;
           previousNulls = hasVal ? 0 : previousNulls + 1;
-          console.log(val, previousNulls);
 
           acc.push({
             x: timestamp.getTime(),
@@ -84,10 +83,8 @@
   // });
 
   // Hard-code these for now so they're consistent across multiple frames.
-  const [globalMin, globalMax] = [10, 55];
+  const [globalMin, globalMax] = [10, 45];
   setGradientScale(globalMin, globalMax);
-
-  $effect(() => console.log({ globalMin, globalMax }));
 </script>
 
 <div class="app" bind:clientHeight>

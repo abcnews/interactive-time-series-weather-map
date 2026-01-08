@@ -5,28 +5,19 @@ export const HOUR = 1000 * 60 * 60;
 export const WED_8AM = 1741125600000;
 export const TUE_5PM = 1741676400000;
 
-export const metricProperties: Record<
-  MetricType,
-  { property: string; units: string; gradientColours: [string, string, string]; description: string }
-> = {
+export const metricProperties: Record<MetricType, { gradientColours: string[] }> = {
   gust: {
-    property: 'gust_kmh',
-    units: 'kph',
-    gradientColours: ['#24A800', '#DB7C00', '#F53500'],
-    description: 'wind speeds'
+    gradientColours: ['#24A800', '#DB7C00', '#F53500']
   },
 
   rain: {
-    property: 'rain_trace_accumulation',
-    units: 'mm',
-    gradientColours: ['#00A87B', '#0090F3', '#B400F5'],
-    description: 'rainfall totals'
+    gradientColours: ['#00A87B', '#0090F3', '#B400F5']
   },
 
   swell: {
-    property: 'swell_height',
-    units: 'm',
-    gradientColours: ['#00A87B', '#0090F3', '#B400F5'],
-    description: 'swell height'
+    gradientColours: ['#00A87B', '#0090F3', '#B400F5']
+  },
+  bomtemp: {
+    gradientColours: ['#0A1B59', '#1D76B5', '#98DDA7', '#FFE48D', '#FC8C3B', '#E21B1D', '#4C0119']
   }
 };

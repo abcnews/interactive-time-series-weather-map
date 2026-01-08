@@ -58,8 +58,8 @@
   // Extract y values for gradient calculations
   let values = $derived(data.map(d => d.y));
   // Use provided yDomain if available, otherwise calculate from local data
-  let minValue = $derived(yDomain ? yDomain[0] : Math.min(...values));
-  let maxValue = $derived(yDomain ? yDomain[1] : Math.max(...values));
+  let minValue = $derived(Math.min(...values));
+  let maxValue = $derived(Math.max(...values));
   let midValue = $derived(minValue + (maxValue - minValue) / 2);
 
   // Calculate primary and secondary data points
@@ -99,8 +99,8 @@
           </linearGradient>
           <linearGradient id="gradient-shade-{slug}" gradientTransform="rotate(90)">
             <stop offset="0%" stop-color={$gradientScale(maxValue)} />
-            <stop offset="50%" stop-color={$gradientScale(maxValue / 2)} />
-            <stop offset="100%" stop-color={$gradientScale(0)} />
+            <stop offset="50%" stop-color={$gradientScale(midValue)} />
+            <stop offset="100%" stop-color={$gradientScale(minValue)} />
           </linearGradient>
         </defs>
         {#if $activeObservation !== null && data.includes($activeObservation as any)}

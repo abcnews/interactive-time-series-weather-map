@@ -56,7 +56,7 @@ export const fetchJurisdictionData = async (jurisdiction: string) => {
 export type LocationType = InferOutput<typeof LocationSchema>;
 export type ObservationType = InferOutput<typeof ObservationSchema>;
 
-export const MetricSchema = union([literal('gust'), literal('rain'), literal('swell')]);
+export const MetricSchema = union([literal('gust'), literal('rain'), literal('swell'), literal('bomtemp')]);
 export type MetricType = InferOutput<typeof MetricSchema>;
 
 export const filterObservationsWithMissingData = (location: LocationType, metric: MetricType) => {
