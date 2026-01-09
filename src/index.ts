@@ -3,7 +3,7 @@ import { whenDOMReady } from '@abcnews/env-utils';
 import { getMountValue, selectMounts } from '@abcnews/mount-utils';
 // import MapViz from './components/MapViz/MapViz.svelte';
 import { mount } from 'svelte';
-import SparklineViz from './components/SparklineViz/SparklineViz.svelte';
+import TempCSparklineViz from './components/SparklineViz/TempCSparklineViz.svelte';
 
 whenDOMReady.then(async () => {
   // const [mapMountEl] = selectMounts('interactivetimeseriesweathermap');
@@ -22,7 +22,7 @@ whenDOMReady.then(async () => {
     const params = new URLSearchParams(location.search);
     const locationParams = params.get('locations') || 'Brisbane,Sydney,Melbourne,Adelaide';
     const locations = locationParams.split(',');
-    mount(SparklineViz, {
+    mount(TempCSparklineViz, {
       target: sparklineMountEl,
       props: { locations }
     });
