@@ -5,6 +5,7 @@ type LocationsFeatureCollection = FeatureCollection<
   {
     name: string;
     auroraId: string;
+    auroraName?: string;
     height?: number;
     colour?: string;
     temp?: number | null;

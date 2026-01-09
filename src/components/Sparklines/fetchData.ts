@@ -16,7 +16,7 @@ export async function fetchData(locationsUrl, dataUrl, locations): Promise<Chart
     .filter(feature => feature && locations.includes(feature.properties.name))
     .map(feature => {
       const auroraId = feature.properties.auroraId;
-      const timeSeries = data.series[auroraId];
+      const timeSeries = (data.series[auroraId] ||= []);
 
       // Transform data with null handling
       let previousNulls = 0;

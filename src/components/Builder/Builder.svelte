@@ -8,7 +8,11 @@
 
   let textarea = $state('');
 
-  let locations = $state((defaultParams.get('locations') || '').split(',').filter(Boolean));
+  let locations = $state(
+    (defaultParams.get('locations') || 'Brisbane,Sydney,Melbourne,Adelaide,Perth,Darwin,Canberra,Hobart')
+      .split(',')
+      .filter(Boolean)
+  );
   let vizType = $state(defaultParams.get('viz') || 'tempc');
   let hash = $state(window.location.hash.slice(1));
   let locationOptions = $state<{ value: string; label: string }[]>([]);
@@ -31,7 +35,9 @@
       locationOptions = geojson.features
         .map(feature => ({
           value: feature.properties.name,
-          label: feature.properties.name
+          label: [feature.properties.name, feature.properties.auroraName && `(${feature.properties.auroraName})`]
+            .filter(Boolean)
+            .join(' ')
         }))
         .sort((a, b) => a.label.localeCompare(b.label));
     } catch (error) {
