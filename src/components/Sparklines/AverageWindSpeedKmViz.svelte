@@ -8,28 +8,23 @@
 
   let { locations = ['Brisbane', 'Sydney', 'Melbourne', 'Adelaide'] } = $props();
 
-  // Temperature-specific configuration
-  const yDomain: [number, number] = [10, 100];
+  // Wind speed configuration
   const gradientColors = metricProperties.gust.gradientColours;
   const formatValue = (v: number) => `${v.toFixed(1)} km/h`;
-  const gradientScale = scaleSequential(yDomain, interpolateRgbBasis(gradientColors));
-
-  // Temperature-specific data loading
-  let loadData = $derived.by(() => {
-    return () =>
-      fetchData(
-        LOCATIONS_URL,
-        'https://abcnewsdata.sgp1.digitaloceanspaces.com/data-time-series-weather/averageWindSpeedKm.json',
-        locations
-      );
-  });
+  const gradientScale = scaleSequential([0, 100], interpolateRgbBasis(gradientColors));
 </script>
 
 <SparklineViz
   placeholders={locations}
-  {loadData}
+  loadData={async () => {
+    const charts = await fetchData(
+      LOCATIONS_URL,
+      'https://abcnewsdata.sgp1.digitaloceanspaces.com/data-time-series-weather/averageWindSpeedKm.json',
+      locations
+    );
+    return { charts };
+  }}
   {formatValue}
-  {yDomain}
   {gradientScale}
   attribution="Times shown in user's local time. Source: MetraWeather."
 />

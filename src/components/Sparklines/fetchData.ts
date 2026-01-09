@@ -1,6 +1,11 @@
 import type { LocationsFeatureCollection, TimeSeriesData } from '../../types';
 
-export async function fetchData(locationsUrl, dataUrl, locations) {
+export type ChartData = {
+  name: string;
+  chartData: Array<{ x: number; y: number }>;
+};
+
+export async function fetchData(locationsUrl, dataUrl, locations): Promise<ChartData[]> {
   const [geojson, data] = await Promise.all([
     fetch(locationsUrl).then(res => res.json() as Promise<LocationsFeatureCollection>),
     fetch(dataUrl).then(res => res.json() as Promise<TimeSeriesData>)
