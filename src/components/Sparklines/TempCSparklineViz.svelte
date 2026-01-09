@@ -25,6 +25,7 @@
 </script>
 
 <SparklineViz
+  placeholders={locations}
   {loadData}
   {formatValue}
   {yDomain}

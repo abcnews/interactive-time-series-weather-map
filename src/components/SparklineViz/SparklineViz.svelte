@@ -9,6 +9,11 @@
    */
   interface SparklineVizProps {
     /**
+     * Array of placeholder names to display charts for.
+     */
+    placeholders: string[];
+
+    /**
      * Function to load chart data asynchronously.
      * @returns A promise that resolves to an array of chart data objects.
      */
@@ -42,7 +47,7 @@
     attribution?: string;
   }
 
-  let { loadData, formatValue, yDomain, gradientScale, attribution }: SparklineVizProps = $props();
+  let { placeholders, loadData, formatValue, yDomain, gradientScale, attribution }: SparklineVizProps = $props();
 
   let charts = $state<
     Array<{
@@ -52,6 +57,16 @@
   >([]);
   let clientHeight = $state(0);
   let status = $state('offscreen');
+
+  // Create a derived version of charts that returns placeholders when data is loading
+  let displayCharts = $derived(
+    charts.length > 0
+      ? charts
+      : placeholders.map(name => ({
+          name,
+          chartData: []
+        }))
+  );
 
   $effect(() => {
     if (clientHeight) {
@@ -79,7 +94,7 @@
   }}
 >
   <div class="charts">
-    {#each charts as chart, i}
+    {#each displayCharts as chart, i}
       <div style:--delay="{i * 0.5}ms">
         <Chart
           name={chart.name}
